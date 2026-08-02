@@ -15,7 +15,6 @@ jobs:
     - name: Locate Visual Studio and Build
       shell: cmd
       run: |
-        REM Find Visual Studio installation path
         for /f "usebackq tokens=*" %%i in (`vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath`) do (
           set InstallDir=%%i
         )
@@ -24,14 +23,13 @@ jobs:
           exit /b 1
         )
         echo "Using Visual Studio at: %InstallDir%"
-        REM Initialize developer environment
         call "%InstallDir%\Common7\Tools\VsDevCmd.bat" -arch=amd64
-        REM Compile resource file
+        :: Build Executor.dll first (no dependencies)
+        cl /EHsc /LD Executor.cpp /Fe:Executor.dll /link user32.lib gdi32.lib comctl32.lib version.lib psapi.lib
+        :: Compile resource file (now Executor.dll exists)
         rc resource.rc
-        REM Build Executor DLL
-        cl /EHsc /LD Executor.cpp /Fe:Executor.dll /link user32.lib gdi32.lib comctl32.lib version.lib
-        REM Build Main EXE
-        cl /EHsc main.cpp resource.res /Fe:ShadowExecutor.exe /link user32.lib gdi32.lib comctl32.lib version.lib /SUBSYSTEM:WINDOWS
+        :: Build main.exe with resource and Executor.dll
+        cl /EHsc main.cpp resource.res /Fe:ShadowExecutor.exe /link user32.lib gdi32.lib comctl32.lib version.lib psapi.lib
 
     - name: Upload Executor DLL
       uses: actions/upload-artifact@v4
