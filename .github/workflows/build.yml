@@ -12,6 +12,10 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
+    - name: Install Windows SDK (for rc.exe)
+      run: |
+        choco install windows-sdk -y --no-progress
+
     - name: Compile Resource File
       run: rc resource.rc
 
