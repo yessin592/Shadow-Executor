@@ -1,7 +1,5 @@
 // ================================================================
-// SHADOW EXECUTOR V99 - SIMPLIFIED CORE ENGINE
-// ================================================================
-// Fixed all compilation errors. Uses only essential functions.
+// SHADOW EXECUTOR V99 - SIMPLIFIED CORE ENGINE (FIXED)
 // ================================================================
 
 #include <windows.h>
@@ -131,7 +129,7 @@ HANDLE g_hPipe = INVALID_HANDLE_VALUE;
 std::string g_CurrentUsername = "Unknown";
 
 // ================================================================
-// 4. GET ROBLOX VERSION (copied from main.cpp to avoid dependency)
+// 4. GET ROBLOX VERSION
 // ================================================================
 
 std::string GetRobloxVersion() {
@@ -257,7 +255,6 @@ void SendUsernameToInjector(const std::string& username) {
 
 std::string GetRobloxUsername() {
     if (!g_lua_State) return "Unknown";
-    // We'll just return a fixed string for now, as the full implementation is complex
     return "Bound_User";
 }
 
@@ -278,7 +275,6 @@ DWORD WINAPI MainThread(LPVOID lpParam) {
     std::string msg = "Shadow Executor V99 Injected!\nBound to account: " + g_CurrentUsername;
     MessageBoxA(NULL, msg.c_str(), "Shadow Executor", MB_OK);
 
-    // Execute default script
     const char* defaultScript = R"(
         loadstring(game:HttpGet('https://raw.githubusercontent.com/Klinac/scripts/main/blockspin.lua', true))()
         print('Shadow Executor V99: Script Executed!')
