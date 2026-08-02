@@ -1,5 +1,5 @@
 // ================================================================
-// SHADOW EXECUTOR V99 - CORE ENGINE
+// SHADOW EXECUTOR V99 - CORE ENGINE (FIXED)
 // ================================================================
 #include <windows.h>
 #include <tlhelp32.h>
@@ -222,6 +222,5 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 }
 
 extern "C" __declspec(dllexport) bool StartExecutor() {
-    // This function is called from main.exe to start the injection
     return true;
 }
