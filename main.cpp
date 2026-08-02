@@ -1,11 +1,16 @@
 // ================================================================
-// XENO STYLE UI - EXACT COPY (NO EXTRA FEATURES)
+// XENO UI - EXACT COPY (LIGHT & CLEAN) - FINAL
 // ================================================================
 #include <windows.h>
 #include <commctrl.h>
-#include <string>   // <-- تم إضافة هذا السطر
+#include <string>
 
 #pragma comment(lib, "comctl32.lib")
+
+// ===== تعريف EM_SETBKGNDCOLOR إذا لم يكن معرفاً =====
+#ifndef EM_SETBKGNDCOLOR
+#define EM_SETBKGNDCOLOR (WM_USER + 1)
+#endif
 
 HWND hMain, hStatus, hTabControl, hEditScript;
 
@@ -14,7 +19,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_CREATE: {
         SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)CreateSolidBrush(RGB(10, 10, 10)));
 
-        // القائمة الجانبية
         int y = 40;
         const char* menuItems[] = { "Dashboard", "Emulator", "Scripts", "Client Manager", "Settings" };
         for (int i = 0; i < 5; i++) {
@@ -24,7 +28,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             y += 30;
         }
 
-        // علامة التبويب
         hTabControl = CreateWindow(WC_TABCONTROL, NULL,
             WS_CHILD | WS_VISIBLE | TCS_FIXEDWIDTH,
             135, 35, 370, 25, hwnd, (HMENU)999, GetModuleHandle(NULL), NULL);
@@ -33,13 +36,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         tie.pszText = "Script 1";
         TabCtrl_InsertItem(hTabControl, 0, &tie);
 
-        // منطقة التحرير
         hEditScript = CreateWindowExA(WS_EX_CLIENTEDGE, "EDIT", "",
             WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL,
             135, 65, 370, 120, hwnd, (HMENU)1, GetModuleHandle(NULL), NULL);
         SendMessageA(hEditScript, EM_SETBKGNDCOLOR, 0, RGB(20, 20, 20));
 
-        // الصف الأول من الأزرار
         CreateWindowA("BUTTON", "Execute", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             135, 195, 80, 25, hwnd, (HMENU)2, NULL, NULL);
         CreateWindowA("BUTTON", "Clear", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
@@ -47,7 +48,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         CreateWindowA("BUTTON", "Kill Rules", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             315, 195, 100, 25, hwnd, (HMENU)4, NULL, NULL);
 
-        // الصف الثاني من الأزرار
         CreateWindowA("BUTTON", "Save", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             135, 225, 80, 25, hwnd, (HMENU)5, NULL, NULL);
         CreateWindowA("BUTTON", "Open", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
@@ -55,7 +55,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         CreateWindowA("BUTTON", "Abort", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             315, 225, 80, 25, hwnd, (HMENU)7, NULL, NULL);
 
-        // شريط الحالة
         hStatus = CreateWindowA("STATIC", "Status: Ready",
             WS_CHILD | WS_VISIBLE | SS_LEFT,
             5, 260, 500, 20, hwnd, (HMENU)8, GetModuleHandle(NULL), NULL);
@@ -74,30 +73,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_COMMAND: {
         int id = LOWORD(wParam);
         if (id >= 100 && id < 105) {
-            // أزرار القائمة الجانبية
             char buf[256];
             GetWindowTextA((HWND)lParam, buf, 256);
             std::string text = "Status: ";
             text += buf;
             SetWindowTextA(hStatus, text.c_str());
         }
-        if (id == 2) { // Execute
+        if (id == 2) {
             SetWindowTextA(hStatus, "Status: Script Executed");
         }
-        if (id == 3) { // Clear
+        if (id == 3) {
             SetWindowTextA(hEditScript, "");
             SetWindowTextA(hStatus, "Status: Cleared");
         }
-        if (id == 4) { // Kill Rules
+        if (id == 4) {
             SetWindowTextA(hStatus, "Status: Kill Rules Activated");
         }
-        if (id == 5) { // Save
+        if (id == 5) {
             SetWindowTextA(hStatus, "Status: Saved");
         }
-        if (id == 6) { // Open
+        if (id == 6) {
             SetWindowTextA(hStatus, "Status: Open");
         }
-        if (id == 7) { // Abort
+        if (id == 7) {
             SetWindowTextA(hStatus, "Status: Aborted");
         }
         break;
