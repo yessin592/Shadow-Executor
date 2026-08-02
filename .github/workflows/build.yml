@@ -12,18 +12,26 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Install Windows SDK (for rc.exe)
+    - name: Locate Visual Studio and Build
+      shell: cmd
       run: |
-        choco install windows-sdk -y --no-progress
-
-    - name: Compile Resource File
-      run: rc resource.rc
-
-    - name: Build Executor DLL
-      run: cl /EHsc /LD Executor.cpp /Fe:Executor.dll /link user32.lib gdi32.lib comctl32.lib version.lib
-
-    - name: Build Main EXE
-      run: cl /EHsc main.cpp resource.res /Fe:ShadowExecutor.exe /link user32.lib gdi32.lib comctl32.lib version.lib /SUBSYSTEM:WINDOWS
+        REM Find Visual Studio installation path
+        for /f "usebackq tokens=*" %%i in (`vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath`) do (
+          set InstallDir=%%i
+        )
+        if not defined InstallDir (
+          echo "Visual Studio not found!"
+          exit /b 1
+        )
+        echo "Using Visual Studio at: %InstallDir%"
+        REM Initialize developer environment
+        call "%InstallDir%\Common7\Tools\VsDevCmd.bat" -arch=amd64
+        REM Compile resource file
+        rc resource.rc
+        REM Build Executor DLL
+        cl /EHsc /LD Executor.cpp /Fe:Executor.dll /link user32.lib gdi32.lib comctl32.lib version.lib
+        REM Build Main EXE
+        cl /EHsc main.cpp resource.res /Fe:ShadowExecutor.exe /link user32.lib gdi32.lib comctl32.lib version.lib /SUBSYSTEM:WINDOWS
 
     - name: Upload Executor DLL
       uses: actions/upload-artifact@v4
