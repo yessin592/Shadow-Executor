@@ -24,12 +24,10 @@ jobs:
         )
         echo "Using Visual Studio at: %InstallDir%"
         call "%InstallDir%\Common7\Tools\VsDevCmd.bat" -arch=amd64
-        :: Build Executor.dll first (no dependencies)
+        :: Build Executor.dll
         cl /EHsc /LD Executor.cpp /Fe:Executor.dll /link user32.lib gdi32.lib comctl32.lib version.lib psapi.lib
-        :: Compile resource file (now Executor.dll exists)
-        rc resource.rc
-        :: Build main.exe with resource and Executor.dll
-        cl /EHsc main.cpp resource.res /Fe:ShadowExecutor.exe /link user32.lib gdi32.lib comctl32.lib version.lib psapi.lib
+        :: Build main.exe (no resource.rc needed)
+        cl /EHsc main.cpp /Fe:ShadowExecutor.exe /link user32.lib gdi32.lib comctl32.lib version.lib psapi.lib
 
     - name: Upload Executor DLL
       uses: actions/upload-artifact@v4
