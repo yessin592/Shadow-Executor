@@ -3,22 +3,18 @@
 // ================================================================
 #include <windows.h>
 #include <commctrl.h>
+#include <string>   // <-- تم إضافة هذا السطر
 
 #pragma comment(lib, "comctl32.lib")
 
 HWND hMain, hStatus, hTabControl, hEditScript;
 
-// ================================================================
-// 1. WINDOW PROCEDURE
-// ================================================================
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_CREATE: {
-        // ===== خلفية النافذة =====
         SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)CreateSolidBrush(RGB(10, 10, 10)));
 
-        // ===== القائمة الجانبية (أزرار بسيطة) =====
+        // القائمة الجانبية
         int y = 40;
         const char* menuItems[] = { "Dashboard", "Emulator", "Scripts", "Client Manager", "Settings" };
         for (int i = 0; i < 5; i++) {
@@ -28,7 +24,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             y += 30;
         }
 
-        // ===== علامة التبويب (Script 1) =====
+        // علامة التبويب
         hTabControl = CreateWindow(WC_TABCONTROL, NULL,
             WS_CHILD | WS_VISIBLE | TCS_FIXEDWIDTH,
             135, 35, 370, 25, hwnd, (HMENU)999, GetModuleHandle(NULL), NULL);
@@ -37,13 +33,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         tie.pszText = "Script 1";
         TabCtrl_InsertItem(hTabControl, 0, &tie);
 
-        // ===== منطقة تحرير السكربت =====
+        // منطقة التحرير
         hEditScript = CreateWindowExA(WS_EX_CLIENTEDGE, "EDIT", "",
             WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL,
             135, 65, 370, 120, hwnd, (HMENU)1, GetModuleHandle(NULL), NULL);
         SendMessageA(hEditScript, EM_SETBKGNDCOLOR, 0, RGB(20, 20, 20));
 
-        // ===== الصف الأول من الأزرار =====
+        // الصف الأول من الأزرار
         CreateWindowA("BUTTON", "Execute", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             135, 195, 80, 25, hwnd, (HMENU)2, NULL, NULL);
         CreateWindowA("BUTTON", "Clear", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
@@ -51,7 +47,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         CreateWindowA("BUTTON", "Kill Rules", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             315, 195, 100, 25, hwnd, (HMENU)4, NULL, NULL);
 
-        // ===== الصف الثاني من الأزرار =====
+        // الصف الثاني من الأزرار
         CreateWindowA("BUTTON", "Save", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             135, 225, 80, 25, hwnd, (HMENU)5, NULL, NULL);
         CreateWindowA("BUTTON", "Open", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
@@ -59,7 +55,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         CreateWindowA("BUTTON", "Abort", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             315, 225, 80, 25, hwnd, (HMENU)7, NULL, NULL);
 
-        // ===== شريط الحالة =====
+        // شريط الحالة
         hStatus = CreateWindowA("STATIC", "Status: Ready",
             WS_CHILD | WS_VISIBLE | SS_LEFT,
             5, 260, 500, 20, hwnd, (HMENU)8, GetModuleHandle(NULL), NULL);
@@ -79,7 +75,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         int id = LOWORD(wParam);
         if (id >= 100 && id < 105) {
             // أزرار القائمة الجانبية
-            SetWindowTextA(hStatus, ("Status: " + std::string((const char*)GetWindowTextA(GetDlgItem(hwnd, id), NULL, 0))).c_str());
+            char buf[256];
+            GetWindowTextA((HWND)lParam, buf, 256);
+            std::string text = "Status: ";
+            text += buf;
+            SetWindowTextA(hStatus, text.c_str());
         }
         if (id == 2) { // Execute
             SetWindowTextA(hStatus, "Status: Script Executed");
@@ -109,10 +109,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     }
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
-
-// ================================================================
-// 2. ENTRY POINT
-// ================================================================
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow) {
     INITCOMMONCONTROLSEX icex = { sizeof(INITCOMMONCONTROLSEX), ICC_TAB_CLASSES };
