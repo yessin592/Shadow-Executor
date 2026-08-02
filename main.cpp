@@ -1,14 +1,5 @@
 // ================================================================
-// SHADOW EXECUTOR V99 - ULTIMATE INTEGRATED EXPERT EDITION
-// ================================================================
-// ALL FEATURES INTEGRATED:
-// - Manual Mapping Injection (Bypasses Byfron/Hyperion)
-// - XOR Encrypted Communication (Pipe)
-// - Advanced Process Detection (Anti-Cheat, Debuggers, VMs)
-// - Signature Caching (Faster subsequent injections)
-// - Simulation Mode (Human-like random delays)
-// - Universal Deobfuscation Engine (Breaks IronBrew, Moonsec, etc.)
-// - Fully English GUI (Xeno Style)
+// SHADOW EXECUTOR V99 - FIXED MAIN (NO _wcsicmp ERRORS)
 // ================================================================
 
 #include <windows.h>
@@ -26,6 +17,11 @@
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "version.lib")
 
+// ===== FIX: Define missing EM_SETBKGNDCOLOR if not defined =====
+#ifndef EM_SETBKGNDCOLOR
+#define EM_SETBKGNDCOLOR (WM_USER + 1)
+#endif
+
 // ================================================================
 // 1. GLOBALS
 // ================================================================
@@ -42,7 +38,7 @@ bool g_SimulationMode = false;
 std::string g_SignatureCacheFile = "signatures.cache";
 
 // ================================================================
-// 2. ROBLOX VERSION DETECTION
+// 2. ROBLOX VERSION DETECTION (FIXED: USE _stricmp)
 // ================================================================
 
 std::string GetRobloxVersion() {
@@ -56,7 +52,8 @@ std::string GetRobloxVersion() {
         PROCESSENTRY32 entry = { sizeof(entry) };
         if (Process32First(snap, &entry)) {
             do {
-                if (_wcsicmp(entry.szExeFile, L"RobloxPlayerBeta.exe") == 0) {
+                // FIX: Use _stricmp for CHAR* comparison
+                if (_stricmp(entry.szExeFile, "RobloxPlayerBeta.exe") == 0) {
                     pid = entry.th32ProcessID;
                     break;
                 }
@@ -130,7 +127,13 @@ bool IsRobloxOpen() {
     if (snap != INVALID_HANDLE_VALUE) {
         PROCESSENTRY32 entry = { sizeof(entry) };
         if (Process32First(snap, &entry)) {
-            do { if (_wcsicmp(entry.szExeFile, L"RobloxPlayerBeta.exe") == 0) { pid = entry.th32ProcessID; break; } } while (Process32Next(snap, &entry));
+            do {
+                // FIX: Use _stricmp
+                if (_stricmp(entry.szExeFile, "RobloxPlayerBeta.exe") == 0) {
+                    pid = entry.th32ProcessID;
+                    break;
+                }
+            } while (Process32Next(snap, &entry));
         }
         CloseHandle(snap);
     }
@@ -207,7 +210,9 @@ bool InjectDLL() {
     if (snap != INVALID_HANDLE_VALUE) {
         PROCESSENTRY32 entry = { sizeof(entry) };
         if (Process32First(snap, &entry)) {
-            do { if (_wcsicmp(entry.szExeFile, L"RobloxPlayerBeta.exe") == 0) { pid = entry.th32ProcessID; break; } } while (Process32Next(snap, &entry));
+            do {
+                if (_stricmp(entry.szExeFile, "RobloxPlayerBeta.exe") == 0) { pid = entry.th32ProcessID; break; }
+            } while (Process32Next(snap, &entry));
         }
         CloseHandle(snap);
     }
